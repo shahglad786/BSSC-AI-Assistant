@@ -1,10 +1,13 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import * as path from 'path'; // Import path module
 
 export default defineConfig({
-  // This tells Vite that the base path for assets is relative
+  // Use a relative path for deployment
   base: './', 
-  // This explicitly sets the project root directory
-  root: './', 
+  
+  // Explicitly tell Vite where the root is
+  root: path.resolve(__dirname, './'),
+
   plugins: [react()],
 })
