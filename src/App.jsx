@@ -1,6 +1,6 @@
 // BSSC AI Transaction Assistant - Minimal & Clean
 // React + Vite frontend that connects to Gemini API and BSSC RPC
-// This version includes a critical check to verify if the VITE_GEMINI_API_KEY environment variable is loading.
+// This version uses the gemini-2.5-flash-preview-09-2025 model.
 
 import { useState, useEffect } from 'react';
 
@@ -79,7 +79,8 @@ export default function App() {
         setResponse(''); // Clear placeholder after fetch
       }
 
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+      // *** Model has been changed to the stable preview model ***
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`;
       
       const res = await fetch(apiUrl, {
         method: 'POST',
@@ -98,7 +99,17 @@ export default function App() {
       if (!res.ok) {
         const errorBody = await res.text();
         console.error('Gemini API Request Failed. Status:', res.status, 'Body:', errorBody.substring(0, 500));
-        setResponse(`AI Request Failed. Status: ${res.status}. This often means the API key is incorrect or invalid.`);
+        
+        let errorMessage = `AI Request Failed. Status: ${res.status}.`;
+        if (res.status === 404) {
+          errorMessage = 'API ERROR (404 Not Found): The model name or endpoint path is likely incorrect. Please ensure your API key supports "gemini-2.5-flash-preview-09-2025" and the URL is correct.';
+        } else if (res.status === 403) {
+          errorMessage = 'API ERROR (403 Permission Denied): Your API key is likely incorrect, expired, or does not have permissions to use the Gemini API.';
+        } else if (res.status === 400) {
+          errorMessage = 'API ERROR (400 Bad Request): There is a problem with the data sent to the API. Check the prompt structure in the console.';
+        }
+        
+        setResponse(errorMessage);
         return;
       }
 
