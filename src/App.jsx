@@ -31,10 +31,18 @@ export default function App() {
     }
   }
 
-  async function handleAsk() {
+    async function handleAsk() {
     setLoading(true);
     setResponse('');
-
+    
+    // **>> ADD THIS CODE BLOCK <<**
+    if (!GEMINI_API_KEY) {
+      setResponse('ERROR: The API Key is NOT loading from Vercel.');
+      setLoading(false);
+      return; 
+    }
+    // **>> END CODE BLOCK <<**
+      
     try {
       let context = '';
       if (input.startsWith('0x') || input.length > 30) {
